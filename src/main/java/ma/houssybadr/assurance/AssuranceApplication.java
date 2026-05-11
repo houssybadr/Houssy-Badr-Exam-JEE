@@ -3,10 +3,15 @@ package ma.houssybadr.assurance;
 import ma.houssybadr.assurance.entities.*;
 import ma.houssybadr.assurance.enums.*;
 import ma.houssybadr.assurance.repositories.*;
+import ma.houssybadr.assurance.security.entities.AppRole;
+import ma.houssybadr.assurance.security.entities.AppUser;
+import ma.houssybadr.assurance.security.repositories.AppRoleRepository;
+import ma.houssybadr.assurance.security.repositories.AppUserRepository;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -28,11 +33,40 @@ public class AssuranceApplication {
             ContratAutoRepository autoRepo,
             ContratHabitationRepository habitationRepo,
             ContratSanteRepository santeRepo,
-            PaiementRepository paiementRepo
+            PaiementRepository paiementRepo,
+            AppUserRepository userRepo,
+            AppRoleRepository roleRepo,
+            PasswordEncoder passwordEncoder
     ) {
         return args -> {
 
-            // ── 5 clients ──────────────────────────────────────────────────
+            // ── Rôles de sécurité ──────────────────────────────────────────
+            AppRole roleAdmin   = roleRepo.save(AppRole.builder().roleName("ROLE_ADMIN").build());
+            AppRole roleEmploye = roleRepo.save(AppRole.builder().roleName("ROLE_EMPLOYE").build());
+            AppRole roleClient  = roleRepo.save(AppRole.builder().roleName("ROLE_CLIENT").build());
+
+            // ── Utilisateurs de test ───────────────────────────────────────
+            userRepo.save(AppUser.builder()
+                    .username("admin")
+                    .password(passwordEncoder.encode("admin123"))
+                    .roles(List.of(roleAdmin, roleEmploye, roleClient))
+                    .build());
+
+            userRepo.save(AppUser.builder()
+                    .username("employe1")
+                    .password(passwordEncoder.encode("employe123"))
+                    .roles(List.of(roleEmploye, roleClient))
+                    .build());
+
+            userRepo.save(AppUser.builder()
+                    .username("client1")
+                    .password(passwordEncoder.encode("client123"))
+                    .roles(List.of(roleClient))
+                    .build());
+
+            System.out.println("✅ Utilisateurs créés : admin / employe1 / client1");
+
+            // ── 5 clients métier ───────────────────────────────────────────
             Client c1 = clientRepo.save(Client.builder().nom("Houssy Badr").email("badr.houssy@gmail.com").build());
             Client c2 = clientRepo.save(Client.builder().nom("Alaoui Sara").email("sara.alaoui@gmail.com").build());
             Client c3 = clientRepo.save(Client.builder().nom("Benali Karim").email("karim.benali@gmail.com").build());
@@ -152,10 +186,9 @@ public class AssuranceApplication {
             sante3.setNbPersonnesCouvertes(5);
             santeRepo.save(sante3);
 
-            // ── Paiements (20+) ────────────────────────────────────────────
+            // ── Paiements (23 au total) ────────────────────────────────────
             List<ContratAssurance> contrats = List.of(auto1, auto2, hab1, hab2, sante1, sante2, sante3);
             LocalDate base = LocalDate.of(2024, 1, 1);
-
             for (int i = 0; i < contrats.size(); i++) {
                 ContratAssurance contrat = contrats.get(i);
                 for (int m = 0; m < 3; m++) {
@@ -167,7 +200,6 @@ public class AssuranceApplication {
                             .build());
                 }
             }
-            // Paiements spéciaux
             paiementRepo.save(Paiement.builder()
                     .datePaiement(LocalDate.of(2024, 6, 1))
                     .montant(500.0)
@@ -181,7 +213,8 @@ public class AssuranceApplication {
                     .contrat(hab3)
                     .build());
 
-            System.out.println("✅ DataSeeder : " + clientRepo.count() + " clients, "
+            System.out.println("✅ DataSeeder : "
+                    + clientRepo.count() + " clients, "
                     + autoRepo.count() + " autos, "
                     + habitationRepo.count() + " habitations, "
                     + santeRepo.count() + " santé, "

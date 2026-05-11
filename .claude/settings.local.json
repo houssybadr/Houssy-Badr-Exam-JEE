@@ -2,7 +2,9 @@
   "permissions": {
     "allow": [
       "Bash(git -C \"C:\\\\Users\\\\user\\\\Desktop\\\\ctrl youssefi\\\\Houssy-Badr-Exam-JEE\" log --oneline)",
-      "Bash(git add *)"
+      "Bash(git add *)",
+      "Bash(git commit -m ' *)",
+      "Bash(git push *)"
     ]
   }
 }
