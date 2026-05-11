@@ -9,6 +9,7 @@ import ma.houssybadr.assurance.entities.Paiement;
 import ma.houssybadr.assurance.mappers.PaiementMapper;
 import ma.houssybadr.assurance.repositories.ContratAssuranceRepository;
 import ma.houssybadr.assurance.repositories.PaiementRepository;
+import ma.houssybadr.assurance.exceptions.ResourceNotFoundException;
 import ma.houssybadr.assurance.services.IPaiementService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -28,7 +29,7 @@ public class PaiementServiceImpl implements IPaiementService {
     @Override
     public PaiementResponse enregistrerPaiement(PaiementRequest req) {
         ContratAssurance contrat = contratRepository.findById(req.contratId())
-                .orElseThrow(() -> new RuntimeException("Contrat introuvable : " + req.contratId()));
+                .orElseThrow(() -> new ResourceNotFoundException("Contrat introuvable : " + req.contratId()));
 
         Paiement paiement = Paiement.builder()
                 .datePaiement(req.datePaiement())
@@ -45,7 +46,7 @@ public class PaiementServiceImpl implements IPaiementService {
     public PaiementResponse getPaiement(Long id) {
         return paiementMapper.toResponse(
                 paiementRepository.findById(id)
-                        .orElseThrow(() -> new RuntimeException("Paiement introuvable : " + id)));
+                        .orElseThrow(() -> new ResourceNotFoundException("Paiement introuvable : " + id)));
     }
 
     @Override

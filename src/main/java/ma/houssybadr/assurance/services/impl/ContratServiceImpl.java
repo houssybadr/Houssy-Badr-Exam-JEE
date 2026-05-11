@@ -9,6 +9,7 @@ import ma.houssybadr.assurance.enums.StatutContrat;
 import ma.houssybadr.assurance.mappers.ContratMapper;
 import ma.houssybadr.assurance.repositories.ClientRepository;
 import ma.houssybadr.assurance.repositories.ContratAssuranceRepository;
+import ma.houssybadr.assurance.exceptions.ResourceNotFoundException;
 import ma.houssybadr.assurance.services.IContratService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -29,7 +30,7 @@ public class ContratServiceImpl implements IContratService {
     @Override
     public ContratResponse creerContrat(ContratRequest req) {
         Client client = clientRepository.findById(req.clientId())
-                .orElseThrow(() -> new RuntimeException("Client introuvable : " + req.clientId()));
+                .orElseThrow(() -> new ResourceNotFoundException("Client introuvable : " + req.clientId()));
 
         ContratAssurance contrat = switch (req.typeContrat().toUpperCase()) {
             case "AUTO" -> {
@@ -52,7 +53,7 @@ public class ContratServiceImpl implements IContratService {
                 s.setNbPersonnesCouvertes(req.nbPersonnesCouvertes());
                 yield s;
             }
-            default -> throw new RuntimeException("Type de contrat inconnu : " + req.typeContrat());
+            default -> throw new ResourceNotFoundException("Type de contrat inconnu : " + req.typeContrat());
         };
 
         contrat.setDateSouscription(req.dateSouscription());
@@ -70,7 +71,7 @@ public class ContratServiceImpl implements IContratService {
     public ContratResponse getContrat(Long id) {
         return contratMapper.toResponse(
                 contratRepository.findById(id)
-                        .orElseThrow(() -> new RuntimeException("Contrat introuvable : " + id)));
+                        .orElseThrow(() -> new ResourceNotFoundException("Contrat introuvable : " + id)));
     }
 
     @Override
@@ -94,7 +95,7 @@ public class ContratServiceImpl implements IContratService {
     @Override
     public ContratResponse validerContrat(Long id) {
         ContratAssurance contrat = contratRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Contrat introuvable : " + id));
+                .orElseThrow(() -> new ResourceNotFoundException("Contrat introuvable : " + id));
         contrat.setStatut(StatutContrat.VALIDE);
         contrat.setDateValidation(LocalDate.now());
         return contratMapper.toResponse(contratRepository.save(contrat));
@@ -103,7 +104,7 @@ public class ContratServiceImpl implements IContratService {
     @Override
     public ContratResponse resilierContrat(Long id) {
         ContratAssurance contrat = contratRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Contrat introuvable : " + id));
+                .orElseThrow(() -> new ResourceNotFoundException("Contrat introuvable : " + id));
         contrat.setStatut(StatutContrat.RESILIE);
         return contratMapper.toResponse(contratRepository.save(contrat));
     }

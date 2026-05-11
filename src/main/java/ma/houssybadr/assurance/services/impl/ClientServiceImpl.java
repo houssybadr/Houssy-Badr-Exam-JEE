@@ -7,6 +7,7 @@ import ma.houssybadr.assurance.dtos.ClientResponse;
 import ma.houssybadr.assurance.entities.Client;
 import ma.houssybadr.assurance.mappers.ClientMapper;
 import ma.houssybadr.assurance.repositories.ClientRepository;
+import ma.houssybadr.assurance.exceptions.ResourceNotFoundException;
 import ma.houssybadr.assurance.services.IClientService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -25,7 +26,7 @@ public class ClientServiceImpl implements IClientService {
     @Override
     public ClientResponse creerClient(ClientRequest request) {
         if (clientRepository.existsByEmail(request.email())) {
-            throw new RuntimeException("Un client avec l'email " + request.email() + " existe déjà");
+            throw new ResourceNotFoundException("Un client avec l'email " + request.email() + " existe déjà");
         }
         Client client = clientMapper.toEntity(request);
         Client saved = clientRepository.save(client);
@@ -37,7 +38,7 @@ public class ClientServiceImpl implements IClientService {
     @Transactional(readOnly = true)
     public ClientResponse getClient(Long id) {
         Client client = clientRepository.findByIdWithContrats(id)
-                .orElseThrow(() -> new RuntimeException("Client introuvable : " + id));
+                .orElseThrow(() -> new ResourceNotFoundException("Client introuvable : " + id));
         return clientMapper.toResponse(client);
     }
 
@@ -60,7 +61,7 @@ public class ClientServiceImpl implements IClientService {
     @Override
     public ClientResponse mettreAJour(Long id, ClientRequest request) {
         Client client = clientRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Client introuvable : " + id));
+                .orElseThrow(() -> new ResourceNotFoundException("Client introuvable : " + id));
         client.setNom(request.nom());
         client.setEmail(request.email());
         return clientMapper.toResponse(clientRepository.save(client));
@@ -69,7 +70,7 @@ public class ClientServiceImpl implements IClientService {
     @Override
     public void supprimerClient(Long id) {
         if (!clientRepository.existsById(id)) {
-            throw new RuntimeException("Client introuvable : " + id);
+            throw new ResourceNotFoundException("Client introuvable : " + id);
         }
         clientRepository.deleteById(id);
         log.info("Client supprimé : {}", id);
