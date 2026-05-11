@@ -1,0 +1,12 @@
+spring:
+  profiles:
+    active: dev
+  application:
+    name: houssybadr-exam-assurance
+
+server:
+  port: 8080
+
+jwt:
+  secret: houssybadr_exam_assurance_secret_key_2024_very_long_secure_string
+  expiration: 86400000  # 24 heures en ms
