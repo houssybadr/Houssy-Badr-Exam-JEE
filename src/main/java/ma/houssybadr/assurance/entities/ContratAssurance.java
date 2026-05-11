@@ -9,10 +9,7 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Entité abstraite centrale pour tous les types de contrats d'assurance.
- * Stratégie SINGLE_TABLE : toutes les sous-classes dans une seule table.
- */
+
 @Entity
 @Table(name = "contrats_assurance")
 @Inheritance(strategy = InheritanceType.SINGLE_TABLE)

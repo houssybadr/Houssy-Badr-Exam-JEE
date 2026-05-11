@@ -49,3 +49,8 @@ frontend/.env
 ### Env / Secrets ###
 *.env
 application-prod.yml
+
+### Claude Code ###
+.claude/
+*.log
+instructions.txt
