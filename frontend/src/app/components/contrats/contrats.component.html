@@ -1,0 +1,152 @@
+<div class="container mt-4">
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <h3><i class="bi bi-file-earmark-text me-2 text-primary"></i>Contrats d'Assurance
+      <span *ngIf="filterClientId" class="badge bg-secondary ms-2 fs-6">Client #{{ filterClientId }}</span>
+    </h3>
+    <div class="d-flex gap-2">
+      <a routerLink="/contrats" class="btn btn-outline-secondary btn-sm" *ngIf="filterClientId">
+        <i class="bi bi-x"></i> Tous
+      </a>
+      <button class="btn btn-primary" (click)="openCreate()">
+        <i class="bi bi-plus-lg me-1"></i>Nouveau Contrat
+      </button>
+    </div>
+  </div>
+
+  <div *ngIf="message" class="alert alert-success alert-dismissible">{{ message }}
+    <button type="button" class="btn-close" (click)="message=''"></button>
+  </div>
+  <div *ngIf="error" class="alert alert-danger alert-dismissible">{{ error }}
+    <button type="button" class="btn-close" (click)="error=''"></button>
+  </div>
+
+  <!-- Formulaire création -->
+  <div *ngIf="showForm" class="card mb-4 border-primary">
+    <div class="card-header bg-primary text-white fw-bold">Nouveau Contrat</div>
+    <div class="card-body">
+      <div class="row g-3">
+        <div class="col-md-4">
+          <label class="form-label">Type *</label>
+          <select [(ngModel)]="selected.typeContrat" class="form-select">
+            <option value="AUTO">Automobile</option>
+            <option value="HABITATION">Habitation</option>
+            <option value="SANTE">Santé</option>
+          </select>
+        </div>
+        <div class="col-md-4">
+          <label class="form-label">Client *</label>
+          <select [(ngModel)]="selected.clientId" class="form-select">
+            <option *ngFor="let c of clients" [value]="c.id">{{ c.nom }}</option>
+          </select>
+        </div>
+        <div class="col-md-4">
+          <label class="form-label">Date souscription *</label>
+          <input [(ngModel)]="selected.dateSouscription" type="date" class="form-control">
+        </div>
+        <div class="col-md-3">
+          <label class="form-label">Cotisation (MAD) *</label>
+          <input [(ngModel)]="selected.montantCotisation" type="number" class="form-control">
+        </div>
+        <div class="col-md-3">
+          <label class="form-label">Durée (mois) *</label>
+          <input [(ngModel)]="selected.dureeContrat" type="number" class="form-control">
+        </div>
+        <div class="col-md-3">
+          <label class="form-label">Taux couverture (%) *</label>
+          <input [(ngModel)]="selected.tauxCouverture" type="number" class="form-control">
+        </div>
+
+        <!-- AUTO -->
+        <ng-container *ngIf="selected.typeContrat === 'AUTO'">
+          <div class="col-md-4"><label class="form-label">Immatriculation</label>
+            <input [(ngModel)]="selected.numImmatriculation" class="form-control"></div>
+          <div class="col-md-4"><label class="form-label">Marque</label>
+            <input [(ngModel)]="selected.marqueVehicule" class="form-control"></div>
+          <div class="col-md-4"><label class="form-label">Modèle</label>
+            <input [(ngModel)]="selected.modeleVehicule" class="form-control"></div>
+        </ng-container>
+
+        <!-- HABITATION -->
+        <ng-container *ngIf="selected.typeContrat === 'HABITATION'">
+          <div class="col-md-4"><label class="form-label">Type logement</label>
+            <select [(ngModel)]="selected.typeLogement" class="form-select">
+              <option value="APPARTEMENT">Appartement</option>
+              <option value="MAISON">Maison</option>
+              <option value="LOCAL_COMMERCIAL">Local commercial</option>
+            </select></div>
+          <div class="col-md-5"><label class="form-label">Adresse</label>
+            <input [(ngModel)]="selected.adresseLogement" class="form-control"></div>
+          <div class="col-md-3"><label class="form-label">Superficie (m²)</label>
+            <input [(ngModel)]="selected.superficie" type="number" class="form-control"></div>
+        </ng-container>
+
+        <!-- SANTE -->
+        <ng-container *ngIf="selected.typeContrat === 'SANTE'">
+          <div class="col-md-4"><label class="form-label">Niveau couverture</label>
+            <select [(ngModel)]="selected.niveauCouverture" class="form-select">
+              <option value="BASIQUE">Basique</option>
+              <option value="INTERMEDIAIRE">Intermédiaire</option>
+              <option value="PREMIUM">Premium</option>
+            </select></div>
+          <div class="col-md-4"><label class="form-label">Nb personnes couvertes</label>
+            <input [(ngModel)]="selected.nbPersonnesCouvertes" type="number" class="form-control"></div>
+        </ng-container>
+      </div>
+      <div class="mt-3 d-flex gap-2">
+        <button class="btn btn-success" (click)="save()"><i class="bi bi-check-lg me-1"></i>Enregistrer</button>
+        <button class="btn btn-secondary" (click)="showForm=false">Annuler</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Cards contrats -->
+  <div class="row g-3">
+    <div class="col-md-6 col-lg-4" *ngFor="let c of contrats">
+      <div class="card h-100">
+        <div class="card-header d-flex justify-content-between align-items-center">
+          <span><i class="bi {{ iconContrat(c.typeContrat) }} me-2"></i>{{ c.typeContrat }}</span>
+          <span class="badge {{ badgeClass(c.statut) }}">{{ c.statut }}</span>
+        </div>
+        <div class="card-body">
+          <p class="mb-1"><i class="bi bi-person me-1"></i><strong>{{ c.clientNom }}</strong></p>
+          <p class="mb-1 small text-muted">Souscription : {{ c.dateSouscription }}</p>
+          <p class="mb-1"><strong>{{ c.montantCotisation | number:'1.2-2' }} MAD</strong> / {{ c.dureeContrat }} mois</p>
+          <p class="mb-0 small">Couverture : <span class="text-success fw-bold">{{ c.tauxCouverture }}%</span></p>
+
+          <!-- Détails AUTO -->
+          <div *ngIf="c.typeContrat === 'AUTO'" class="mt-2 small bg-light rounded p-2">
+            <i class="bi bi-car-front me-1"></i>{{ c.marqueVehicule }} {{ c.modeleVehicule }} — {{ c.numImmatriculation }}
+          </div>
+          <!-- Détails HABITATION -->
+          <div *ngIf="c.typeContrat === 'HABITATION'" class="mt-2 small bg-light rounded p-2">
+            <i class="bi bi-house me-1"></i>{{ c.typeLogement }} — {{ c.superficie }}m² — {{ c.adresseLogement }}
+          </div>
+          <!-- Détails SANTE -->
+          <div *ngIf="c.typeContrat === 'SANTE'" class="mt-2 small bg-light rounded p-2">
+            <i class="bi bi-heart-pulse me-1"></i>{{ c.niveauCouverture }} — {{ c.nbPersonnesCouvertes }} pers.
+          </div>
+        </div>
+        <div class="card-footer d-flex gap-1 flex-wrap">
+          <a [routerLink]="['/paiements']" [queryParams]="{contratId: c.id}"
+             class="btn btn-sm btn-outline-info flex-grow-1">
+            <i class="bi bi-cash-coin me-1"></i>Paiements
+          </a>
+          <button *ngIf="c.statut === 'EN_COURS'" class="btn btn-sm btn-success flex-grow-1" (click)="valider(c.id!)">
+            <i class="bi bi-check-circle me-1"></i>Valider
+          </button>
+          <button *ngIf="c.statut !== 'RESILIE'" class="btn btn-sm btn-warning flex-grow-1" (click)="resilier(c.id!)">
+            <i class="bi bi-x-circle me-1"></i>Résilier
+          </button>
+          <button class="btn btn-sm btn-outline-danger" (click)="delete(c.id!)">
+            <i class="bi bi-trash"></i>
+          </button>
+        </div>
+      </div>
+    </div>
+    <div class="col-12" *ngIf="contrats.length === 0">
+      <div class="text-center text-muted py-5">
+        <i class="bi bi-inbox display-4"></i><br>Aucun contrat trouvé
+      </div>
+    </div>
+  </div>
+</div>
