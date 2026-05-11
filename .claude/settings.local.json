@@ -7,7 +7,8 @@
       "Bash(git push *)",
       "Bash(ng version *)",
       "Bash(ng new *)",
-      "Bash(npm install *)"
+      "Bash(npm install *)",
+      "Bash(git tag *)"
     ]
   }
 }

@@ -1,0 +1,35 @@
+@startuml ArchitectureTechnique
+!theme plain
+skinparam componentStyle rectangle
+skinparam backgroundColor #FAFAFA
+skinparam defaultFontName Segoe UI
+
+package "Couche Présentation" #E3F2FD {
+  [Angular 21 SPA\n(Bootstrap 5)] as Front
+}
+
+package "Couche Backend — Spring Boot 3.2" #E8F5E9 {
+  [Spring Security\n+ JwtAuthorizationFilter] as Sec
+  [REST Controllers\n(ClientController, ContratController\nPaiementController, AuthController)] as Ctrl
+  [Service Layer\n(IClientService, IContratService\nIPaiementService)] as Svc
+  [DAO Layer\n(Spring Data JPA\nClientRepository, ContratRepository\nPaiementRepository)] as Dao
+  [Swagger UI\n(springdoc-openapi 2.5)] as Swg
+}
+
+database "Base de Données" #FFF9C4 {
+  [H2 (dev) / MySQL (prod)] as DB
+}
+
+Front -down-> Sec : HTTP + JWT Bearer
+Sec -down-> Ctrl : Autorise si token valide
+Ctrl -down-> Svc : Appel métier
+Svc -down-> Dao : Accès données
+Dao -down-> DB : Hibernate ORM / JDBC
+Swg .right.> Ctrl : documente
+Front ..> Swg : /swagger-ui.html (test)
+
+note right of Sec
+  @PreAuthorize
+  ROLE_CLIENT / ROLE_EMPLOYE / ROLE_ADMIN
+end note
+@enduml

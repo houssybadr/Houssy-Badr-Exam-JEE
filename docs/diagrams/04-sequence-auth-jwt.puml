@@ -1,0 +1,36 @@
+@startuml SequenceAuthJWT
+!theme plain
+skinparam sequenceMessageAlign center
+
+actor Utilisateur as U
+participant "Angular SPA\n(LoginComponent)" as Front
+participant "POST /api/auth/login\n(AuthController)" as Auth
+participant "AuthenticationManager\n(Spring Security)" as AM
+participant "UserDetailsServiceImpl" as UDS
+database "H2 / MySQL\n(app_users)" as DB
+participant "JwtUtil" as JWT
+
+U -> Front : Saisit username + password
+Front -> Auth : POST {username, password}
+Auth -> AM : authenticate(credentials)
+AM -> UDS : loadUserByUsername(username)
+UDS -> DB : findByUsername()
+DB --> UDS : AppUser + roles
+UDS --> AM : UserDetails (username, password BCrypt, roles)
+AM -> AM : BCrypt.matches(raw, encoded)
+AM --> Auth : Authentication (validée)
+Auth -> JWT : generateToken(userDetails)
+JWT -> JWT : HMAC-SHA256 sign\n+ claims(roles, sub, iat, exp)
+JWT --> Auth : accessToken (JWT)
+Auth --> Front : { accessToken, username, roles }
+Front -> Front : localStorage.setItem(token)
+
+note over Front, DB : Requêtes suivantes
+
+Front -> Front : jwtInterceptor\najoute Header: Bearer {token}
+Front -> Auth : GET /api/clients\nAuthorization: Bearer {token}
+Auth -> JWT : extractUsername(token) + isTokenValid()
+JWT --> Auth : username validé
+Auth -> Auth : SecurityContextHolder.setAuthentication()
+Auth --> Front : 200 OK + données
+@enduml

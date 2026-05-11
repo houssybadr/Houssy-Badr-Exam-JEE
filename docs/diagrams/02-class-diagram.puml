@@ -1,0 +1,88 @@
+@startuml ClassDiagram
+!theme plain
+skinparam classAttributeIconSize 0
+skinparam classBackgroundColor #E8F4FD
+skinparam classBorderColor #1976D2
+skinparam abstractClassBackgroundColor #FFF3E0
+skinparam abstractClassBorderColor #E65100
+
+class Client {
+  - Long id
+  - String nom
+  - String email
+}
+
+abstract class ContratAssurance {
+  - Long id
+  - LocalDate dateSouscription
+  - StatutContrat statut
+  - LocalDate dateValidation
+  - Double montantCotisation
+  - Integer dureeContrat
+  - Double tauxCouverture
+}
+
+class ContratAssuranceAuto {
+  - String numImmatriculation
+  - String marqueVehicule
+  - String modeleVehicule
+}
+
+class ContratAssuranceHabitation {
+  - TypeLogement typeLogement
+  - String adresseLogement
+  - Double superficie
+}
+
+class ContratAssuranceSante {
+  - NiveauCouverture niveauCouverture
+  - Integer nbPersonnesCouvertes
+}
+
+class Paiement {
+  - Long id
+  - LocalDate datePaiement
+  - Double montant
+  - TypePaiement type
+}
+
+enum StatutContrat {
+  EN_COURS
+  VALIDE
+  RESILIE
+}
+
+enum TypeLogement {
+  APPARTEMENT
+  MAISON
+  LOCAL_COMMERCIAL
+}
+
+enum NiveauCouverture {
+  BASIQUE
+  INTERMEDIAIRE
+  PREMIUM
+}
+
+enum TypePaiement {
+  MENSUALITE
+  PAIEMENT_ANNUEL
+  PAIEMENT_EXCEPTIONNEL
+}
+
+Client "1" --> "*" ContratAssurance : possède
+ContratAssurance <|-- ContratAssuranceAuto
+ContratAssurance <|-- ContratAssuranceHabitation
+ContratAssurance <|-- ContratAssuranceSante
+ContratAssurance "1" --> "*" Paiement : contient
+ContratAssurance --> StatutContrat
+ContratAssuranceHabitation --> TypeLogement
+ContratAssuranceSante --> NiveauCouverture
+Paiement --> TypePaiement
+
+note bottom of ContratAssurance
+  Stratégie : SINGLE_TABLE
+  @DiscriminatorColumn = TYPE_CONTRAT
+  Valeurs : AUTO | HABITATION | SANTE
+end note
+@enduml

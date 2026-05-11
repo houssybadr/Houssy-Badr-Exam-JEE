@@ -1,0 +1,31 @@
+@startuml Deployment
+!theme plain
+skinparam nodeBackgroundColor #E3F2FD
+
+node "Poste Client (Navigateur)" {
+  artifact "Angular SPA\n(http://localhost:4200)" as Front
+}
+
+node "Serveur Application\n(JVM 17)" {
+  artifact "Spring Boot JAR\nEmbedded Tomcat\n(http://localhost:8080)" as App
+  artifact "Swagger UI\n(/swagger-ui.html)" as Swagger
+}
+
+node "Serveur Base de Données" {
+  database "H2 In-Memory\n(dev profile)" as H2
+  database "MySQL 8\n(prod profile)" as MySQL
+}
+
+Front --> App : HTTP/HTTPS\nJWT Bearer
+App --> H2    : JDBC (dev)
+App --> MySQL : JDBC (prod)
+App --> Swagger : expose
+Front ..> Swagger : test API
+
+note right of App
+  POST /api/auth/login
+  GET|POST|PUT|DELETE /api/clients
+  GET|POST|PUT|DELETE /api/contrats
+  GET|POST|DELETE /api/paiements
+end note
+@enduml

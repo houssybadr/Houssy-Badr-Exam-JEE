@@ -1,0 +1,45 @@
+@startuml UseCase
+!theme plain
+left to right direction
+skinparam actorBackgroundColor #E3F2FD
+skinparam usecaseBackgroundColor #F1F8E9
+
+actor "Client"   as C
+actor "Employé"  as E
+actor "Admin"    as A
+
+rectangle "Application Assurance" {
+  usecase "Se connecter (JWT)"       as UC0
+  usecase "Consulter ses contrats"   as UC1
+  usecase "Consulter ses paiements"  as UC2
+  usecase "Souscrire un contrat"     as UC3
+  usecase "Valider un contrat"       as UC4
+  usecase "Résilier un contrat"      as UC5
+  usecase "Enregistrer un paiement"  as UC6
+  usecase "Voir tous les clients"    as UC7
+  usecase "Créer / modifier client"  as UC8
+  usecase "Gérer les utilisateurs"   as UC9
+  usecase "Supprimer (CRUD admin)"   as UC10
+}
+
+C --> UC0
+C --> UC1
+C --> UC2
+
+E --> UC0
+E --> UC1
+E --> UC2
+E --> UC3
+E --> UC4
+E --> UC5
+E --> UC6
+E --> UC7
+E --> UC8
+
+A --> UC0
+A --> UC9
+A --> UC10
+A --> UC7
+A --> UC4
+A --> UC5
+@enduml
